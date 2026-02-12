@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - Open Library</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .score-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .score-display {
+            margin: 30px 0;
+        }
+
+        .large-score {
+            font-size: 80px;
+            font-weight: bold;
+            color: #667eea;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 18px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .score-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .score-detail {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .score-detail h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .score-detail .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .performance-bar {
+            width: 100%;
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease-out;
+        }
+
+        .feedback {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .feedback.excellent {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.good {
+            background: #cfe2ff;
+            color: #084298;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .feedback.acceptable {
+            background: #fff3cd;
+            color: #664d03;
+            border-left: 4px solid #ffc107;
+        }
+
+        .feedback.poor {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 4px solid #dc3545;
+        }
+
+        .answers-section {
+            padding: 40px 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .answers-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .answer-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #e0e0e0;
+        }
+
+        .answer-item.correct {
+            border-left-color: #28a745;
+            background: #f0f8f5;
+        }
+
+        .answer-item.incorrect {
+            border-left-color: #dc3545;
+            background: #fef5f5;
+        }
+
+        .answer-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .answer-content {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .answer-your {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .answer-correct {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .answer-label {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-incorrect {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .explanation {
+            margin-top: 12px;
+            padding: 12px;
+            background: white;
+            border-left: 3px solid #667eea;
+            border-radius: 6px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            padding: 30px;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        @media (max-width: 600px) {
+            .result-header {
+                padding: 30px 20px;
+            }
+
+            .result-icon {
+                font-size: 50px;
+            }
+
+            .result-title {
+                font-size: 24px;
+            }
+
+            .large-score {
+                font-size: 60px;
+            }
+
+            .score-details {
+                grid-template-columns: 1fr;
+            }
+
+            .score-section {
+                padding: 20px;
+            }
+
+            .answers-section {
+                padding: 20px;
+            }
+
+            .action-buttons {
+                padding: 20px;
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <div class="result-card">
+            <!-- DEBUG INFO -->
+            <div style="background: yellow; padding: 20px; margin: 10px; border: 2px solid red;">
+                <h3>DEBUG INFO:</h3>
+                <p>Quiz ID: <span th:text="${quiz == null} ? 'QUIZ IS NULL' : ${quiz.id}"></span></p>
+                <p>Quiz Subject: <span th:text="${quiz == null} ? 'QUIZ IS NULL' : ${quiz.subject}"></span></p>
+                <p>Percentage: <span th:text="${percentage == null} ? 'NULL' : ${percentage}"></span></p>
+                <p>Correct Answers: <span th:text="${correctAnswers == null} ? 'NULL' : ${correctAnswers}"></span></p>
+                <p>Total Questions: <span th:text="${totalQuestions == null} ? 'NULL' : ${totalQuestions}"></span></p>
+                <p>Questions Count in List: <span th:text="${questions == null} ? 'NULL' : ${#lists.size(questions)}"></span></p>
+            </div>
+
+            <!-- Header -->
+            <div class="result-header">
+                <div class="result-icon" id="resultIcon">🎉</div>
+                <div class="result-title">Quiz Completed!</div>
+                <div class="result-subtitle" th:text="${quiz.subject}"></div>
+            </div>
+
+            <!-- Score Section -->
+            <div class="score-section">
+                <div class="score-display">
+                    <div class="large-score" th:text="${percentage} + '%'"></div>
+                    <div class="score-label">Your Score</div>
+                </div>
+
+                <div class="performance-bar">
+                    <div class="performance-fill" th:style="'width: ' + ${percentage} + '%'"></div>
+                </div>
+
+                <div class="score-details">
+                    <div class="score-detail">
+                        <h3>Correct</h3>
+                        <div class="number" th:text="${correctAnswers}"></div>
+                    </div>
+                    <div class="score-detail">
+                        <h3>Total</h3>
+                        <div class="number" th:text="${totalQuestions}"></div>
+                    </div>
+                    <div class="score-detail">
+                        <h3>Accuracy</h3>
+                        <div class="number" th:text="${percentage} + '%'"></div>
+                    </div>
+                </div>
+
+                <div th:if="${percentage >= 90}" class="feedback excellent">
+                    <strong>🌟 Excellent!</strong> You have exceptional understanding of this subject. Keep up the great work!
+                </div>
+                <div th:if="${percentage >= 70 and percentage < 90}" class="feedback good">
+                    <strong>👍 Good Job!</strong> You've demonstrated solid knowledge. Review the incorrect answers to master this topic.
+                </div>
+                <div th:if="${percentage >= 50 and percentage < 70}" class="feedback acceptable">
+                    <strong>📚 Acceptable</strong>. You have basic understanding. Practice more to improve your score.
+                </div>
+                <div th:if="${percentage < 50}" class="feedback poor">
+                    <strong>🔄 Keep Learning!</strong> Don't worry, you're on the right path. Review the material and try again.
+                </div>
+            </div>
+
+            <!-- Detailed Answers -->
+            <div class="answers-section">
+                <div class="answers-title">📋 Detailed Results</div>
+                
+                <div th:each="q, iter : ${questions}" th:class="'answer-item ' + (${q.isCorrect} ? 'correct' : 'incorrect')">
+                    <div class="answer-question">
+                        <span th:text="'Question ' + ${iter.count}"></span>
+                        <span class="badge" th:class="'badge ' + (${q.isCorrect} ? 'badge-correct' : 'badge-incorrect')" 
+                              th:text="${q.isCorrect} ? '✓ Correct' : '✗ Incorrect'"></span>
+                    </div>
+                    
+                    <div class="answer-content">
+                        <span th:text="${q.questionText}"></span>
+                    </div>
+
+                    <div class="answer-your">
+                        <span class="answer-label">Your Answer:</span>
+                        <span th:if="${q.userAnswer}" th:text="|${q.userAnswer}. ${q.userAnswer == 'A' ? q.optionA : q.userAnswer == 'B' ? q.optionB : q.userAnswer == 'C' ? q.optionC : q.optionD}|"></span>
+                        <span th:if="!${q.userAnswer}" class="text-muted">Not answered</span>
+                    </div>
+
+                    <div th:if="!${q.isCorrect}" class="answer-correct">
+                        <span class="answer-label">Correct Answer:</span>
+                        <span th:text="|${q.correctAnswer}. ${q.correctAnswer == 'A' ? q.optionA : q.correctAnswer == 'B' ? q.optionB : q.correctAnswer == 'C' ? q.optionC : q.optionD}|"></span>
+                    </div>
+
+                    <div th:if="${q.explanation}" class="explanation">
+                        <strong>💡 Explanation:</strong> <span th:text="${q.explanation}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/quiz" class="btn btn-primary">Retake Quiz or Try Another</a>
+                <a href="/quiz/history" class="btn btn-secondary">View Quiz History</a>
+                <a href="/" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set icon based on percentage
+        document.addEventListener('DOMContentLoaded', function() {
+            const percentage = document.querySelector('.large-score').textContent;
+            const percentNum = parseInt(percentage);
+            const icon = document.getElementById('resultIcon');
+
+            if (percentNum >= 90) {
+                icon.textContent = '🏆';
+            } else if (percentNum >= 70) {
+                icon.textContent = '🎊';
+            } else if (percentNum >= 50) {
+                icon.textContent = '📚';
+            } else {
+                icon.textContent = '💪';
+            }
+        });
+    </script>
+</body>
+</html>

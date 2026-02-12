@@ -216,6 +216,33 @@ footer {
 			</div>
 		</div>
 		<br>
+		<!-- Quiz Section -->
+		<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 0; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-md-6">
+						<h2 style="color: white; font-weight: bold; margin-bottom: 20px;">
+							<i class="fas fa-brain"></i> Test Your Knowledge with Quiz
+						</h2>
+						<p style="color: #f0f0f0; font-size: 16px; line-height: 1.6;">
+							Challenge yourself with AI-powered quizzes across multiple subjects. Select your topic, choose the number of questions, and get instant feedback with detailed explanations!
+						</p>
+						<div style="margin-top: 20px;">
+							<a th:href="@{/quiz}" class="btn btn-light btn-lg" style="font-weight: bold; margin-right: 10px;">
+								<i class="fas fa-play-circle"></i> Start Quiz
+							</a>
+							<a th:href="@{/quiz/history}" class="btn btn-outline-light btn-lg" style="font-weight: bold;">
+								<i class="fas fa-history"></i> View History
+							</a>
+						</div>
+					</div>
+					<div class="col-md-6" style="text-align: center;">
+						<i class="fas fa-graduation-cap" style="font-size: 100px; color: white; opacity: 0.3;"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br>
 		<div style="background-color: #82103a; padding-top: 5px">
 			<div class="container">
 				<div class="book ">

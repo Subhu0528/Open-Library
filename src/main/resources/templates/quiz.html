@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Open Library</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .quiz-header h1 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quiz-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control, select {
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            padding: 12px 15px !important;
+            font-size: 16px !important;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, select:focus {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px !important;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-start:active {
+            transform: translateY(0);
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .info-card strong {
+            color: #333;
+        }
+
+        .history-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .history-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .history-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>📚 Take a Quiz</h1>
+            <p>Test your knowledge and improve your skills</p>
+        </div>
+
+        <div class="info-card">
+            <strong>💡 Tip:</strong> Questions will be generated fresh each time you start a new quiz!
+        </div>
+
+        <form id="quizForm" onsubmit="startQuiz(event)">
+            <div class="form-group">
+                <label for="subject">Select Subject:</label>
+                <select id="subject" name="subject" required>
+                    <option value="">-- Choose a Subject --</option>
+                    <option th:each="subject : ${subjects}" th:value="${subject}" th:text="${subject}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="questions">Number of Questions:</label>
+                <select id="questions" name="questions" required>
+                    <option value="">-- Choose Number of Questions --</option>
+                    <option th:each="count : ${questionCounts}" th:value="${count}" th:text="${count + ' Questions'}"></option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-start">Start Quiz 🚀</button>
+        </form>
+
+        <div class="history-link">
+            <a href="/quiz/history">View Quiz History →</a>
+        </div>
+    </div>
+
+    <script>
+        function startQuiz(event) {
+            event.preventDefault();
+            const subject = document.getElementById('subject').value;
+            const questions = document.getElementById('questions').value;
+
+            if (subject && questions) {
+                window.location.href = `/quiz/start?subject=${encodeURIComponent(subject)}&questions=${questions}`;
+            } else {
+                alert('Please select both subject and number of questions');
+            }
+        }
+    </script>
+</body>
+</html>

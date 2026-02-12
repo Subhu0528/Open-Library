@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Open Library</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .quiz-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-counter {
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .timer {
+            font-size: 14px;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .quiz-content {
+            background: white;
+            min-height: 500px;
+            padding: 40px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .option label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            color: #333;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .quiz-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 40px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-prev {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-prev:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-next:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .question-indicator {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .no-answer-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-header {
+                padding: 20px;
+            }
+
+            .quiz-content {
+                padding: 20px;
+                min-height: auto;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .quiz-progress {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .progress-bar-container {
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .question-counter {
+                align-self: flex-start;
+            }
+
+            .quiz-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-wrapper">
+        <div class="quiz-header">
+            <div class="quiz-title">
+                <span class="question-indicator" id="qNumber">1</span>
+                <span th:text="${quiz.subject}"></span>
+            </div>
+            
+            <div class="quiz-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                </div>
+                <div class="question-counter" id="qCounter"></div>
+            </div>
+        </div>
+
+        <div class="quiz-content">
+            <div id="questionContainer"></div>
+
+            <div class="quiz-buttons">
+                <button class="btn btn-prev" id="btnPrev" onclick="previousQuestion()">← Previous</button>
+                <button class="btn btn-next" id="btnNext" onclick="nextQuestion()">Next →</button>
+                <button class="btn btn-submit" id="btnSubmit" style="display: none;" onclick="submitQuiz()">Submit Quiz ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const quizData = {
+            id: [[${quiz.id}]],
+            subject: [[${quiz.subject}]],
+            totalQuestions: [[${questions.size()}]],
+            questions: [
+                /*[+
+                    [# th:each="q : ${questions}"]
+                    {
+                        id: [[${q.id}]],
+                        text: [[${q.questionText}]],
+                        options: {
+                            A: [[${q.optionA}]],
+                            B: [[${q.optionB}]],
+                            C: [[${q.optionC}]],
+                            D: [[${q.optionD}]]
+                        },
+                        correctAnswer: [[${q.correctAnswer}]],
+                        explanation: [[${q.explanation}]]
+                    },
+                    [/]
+                +]*/
+            ]
+        };
+
+        let currentQuestion = 0;
+        let userAnswers = {};
+        let quizStartTime = Date.now();
+
+        // Fetch questions via API
+        async function loadQuestions() {
+            try {
+                console.log('Loading questions...');
+                const questionElements = document.querySelectorAll('[data-question-id]');
+                console.log('Found ' + questionElements.length + ' question elements');
+                
+                const questions = [];
+                
+                questionElements.forEach((el, index) => {
+                    const question = {
+                        id: parseInt(el.dataset.questionId),
+                        text: el.dataset.questionText,
+                        options: {
+                            A: el.dataset.optionA,
+                            B: el.dataset.optionB,
+                            C: el.dataset.optionC,
+                            D: el.dataset.optionD
+                        },
+                        correctAnswer: el.dataset.correctAnswer,
+                        explanation: el.dataset.explanation,
+                        number: index + 1
+                    };
+                    questions.push(question);
+                    console.log('Loaded Q' + (index + 1) + ': ' + el.dataset.questionText);
+                });
+
+                quizData.questions = questions;
+                console.log('Total questions loaded: ' + quizData.questions.length);
+                displayQuestion();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        function displayQuestion() {
+            const question = quizData.questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            // Check if user has answered this question
+            const hasAnswer = userAnswers[currentQuestion];
+            const noAnswerWarning = hasAnswer ? '' : '<div class="no-answer-warning">⚠️ Note: You haven\'t selected an answer yet.</div>';
+
+            let html = noAnswerWarning + 
+                      `<div class="question-text">${question.text}</div>
+                       <div class="options-container">`;
+
+            for (let option of ['A', 'B', 'C', 'D']) {
+                const isSelected = userAnswers[currentQuestion] === option;
+                const selectedClass = isSelected ? 'selected' : '';
+                
+                html += `<div class="option ${selectedClass}" onclick="selectOption('${option}')">
+                            <input type="radio" id="opt${option}" name="option" value="${option}" 
+                                   ${isSelected ? 'checked' : ''}>
+                            <label for="opt${option}">${option}. ${question.options[option]}</label>
+                         </div>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Update progress
+            updateProgress();
+            updateButtons();
+        }
+
+        function selectOption(option) {
+            userAnswers[currentQuestion] = option;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('qNumber').textContent = currentQuestion + 1;
+            document.getElementById('qCounter').textContent = `${currentQuestion + 1} of ${quizData.totalQuestions}`;
+        }
+
+        function updateButtons() {
+            document.getElementById('btnPrev').disabled = currentQuestion === 0;
+            
+            if (currentQuestion === quizData.totalQuestions - 1) {
+                document.getElementById('btnNext').style.display = 'none';
+                document.getElementById('btnSubmit').style.display = 'block';
+            } else {
+                document.getElementById('btnNext').style.display = 'block';
+                document.getElementById('btnSubmit').style.display = 'none';
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.totalQuestions - 1) {
+                currentQuestion++;
+                displayQuestion();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        async function submitQuiz() {
+            // Save all remaining answers
+            const quizId = quizData.id;
+            const answersToSubmit = [];
+
+            for (let i = 0; i < quizData.questions.length; i++) {
+                if (userAnswers[i]) {
+                    answersToSubmit.push({
+                        questionIndex: i,
+                        answer: userAnswers[i]
+                    });
+                }
+            }
+
+            console.log('Submitting quiz with ID: ' + quizId);
+            console.log('Answers to submit: ' + JSON.stringify(answersToSubmit));
+
+            try {
+                const response = await fetch(`/quiz/complete/${quizId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answers: answersToSubmit
+                    })
+                });
+
+                console.log('Response status: ' + response.status);
+                const responseText = await response.text();
+                console.log('Response body: ' + responseText);
+                
+                const result = JSON.parse(responseText);
+                console.log('Parsed result: ' + JSON.stringify(result));
+                
+                if (result.success) {
+                    console.log('Quiz submission successful. Redirecting to result page...');
+                    window.location.href = `/quiz/result/${quizId}`;
+                } else {
+                    alert('Error submitting quiz: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+                alert('Error submitting quiz: ' + error.message);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestions();
+        });
+    </script>
+
+    <!-- Hidden data attributes for questions -->
+    <div style="display: none;">
+        <div th:each="q, iter : ${questions}" 
+             th:data-question-id="${q.id}"
+             th:data-question-text="${q.questionText}"
+             th:data-option-a="${q.optionA}"
+             th:data-option-b="${q.optionB}"
+             th:data-option-c="${q.optionC}"
+             th:data-option-d="${q.optionD}"
+             th:data-correct-answer="${q.correctAnswer}"
+             th:data-explanation="${q.explanation}"></div>
+    </div>
+</body>
+</html>
