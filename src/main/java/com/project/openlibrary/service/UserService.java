@@ -10,8 +10,8 @@ public interface UserService {
 	void saveUser(User user);
 
 	Optional<User> findByEmail(String email);
-	
-	List< User > getAllUserRecords();
-	
+
+	List<User> getAllUserRecords();
+
 	void deleteUserbyId(Integer id);
 }

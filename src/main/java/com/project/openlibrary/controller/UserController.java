@@ -22,49 +22,46 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	
 	@Autowired
-    private BCryptPasswordEncoder passwordEncoder; // Inject BCryptPasswordEncoder
+	private BCryptPasswordEncoder passwordEncoder; // Inject BCryptPasswordEncoder
 
- 
-	
 	@PostMapping("/save_user")
-	public String saveUser(@Valid @ModelAttribute("user") User user , BindingResult result, Model model) {
-		
+	public String saveUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
+
 		if (result.hasErrors()) {
 			System.out.println("Validation errors: " + result);
 			model.addAttribute("errors", result.getAllErrors());
 			return "registerPage";
 		}
-		
+
 		// Check if email already exists
 		var existingUser = userService.findByEmail(user.getEmail());
 		if (existingUser.isPresent()) {
 			model.addAttribute("error", "Email already registered. Please use a different email or login.");
 			return "registerPage";
 		}
-		
+
 		System.out.println("Registering user: " + user.getEmail());
 		String encodedPassword = passwordEncoder.encode(user.getPassword());
 		System.out.println("Original password: " + user.getPassword());
 		System.out.println("Encoded password: " + encodedPassword);
-		
-		user.setPassword(encodedPassword);	
+
+		user.setPassword(encodedPassword);
 		userService.saveUser(user);
-		
+
 		System.out.println("User saved successfully!");
 		model.addAttribute("message", "Registration successful! Please login.");
 		model.addAttribute("user", new User());
 		return "userLoginPage";
 	}
 
-	@PostMapping("/user_login") //write @Valid for validation
-	public String userLogin(@RequestParam("email") String email, 
+	@PostMapping("/user_login") // write @Valid for validation
+	public String userLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password,
 			Model model) {
 
 		System.out.println("Login attempt - Email: " + email);
-		
+
 		if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
 			model.addAttribute("user", new User());
 			model.addAttribute("error", "Email and Password are required");
@@ -73,30 +70,30 @@ public class UserController {
 
 		var dbUser = userService.findByEmail(email);
 
-		 // Check if the user exists
-	    if (dbUser.isEmpty()) {
-	        System.out.println("User not found with email: " + email);
-	        model.addAttribute("user", new User());
-	        model.addAttribute("error", "User not found with this email");
-	        return "userLoginPage";
-	    }
+		// Check if the user exists
+		if (dbUser.isEmpty()) {
+			System.out.println("User not found with email: " + email);
+			model.addAttribute("user", new User());
+			model.addAttribute("error", "User not found with this email");
+			return "userLoginPage";
+		}
 
-	    User foundUser = dbUser.get();
-	    System.out.println("User found: " + foundUser.getEmail());
-	    System.out.println("Stored password hash: " + foundUser.getPassword());
-	    System.out.println("Password matches: " + passwordEncoder.matches(password, foundUser.getPassword()));
-	    
-	    // Compare the passwords using BCryptPasswordEncoder
-	    if (passwordEncoder.matches(password, foundUser.getPassword())) {
-	        System.out.println("Email and Password Matched.");
-	        model.addAttribute("user", foundUser);
-	        return "userDashBoard";
-	    } else {
-	        System.out.println("Email and Password Not Matched.");
-	        model.addAttribute("user", new User());
-	        model.addAttribute("error", "Password is incorrect");
-	        return "userLoginPage";
-	    }
+		User foundUser = dbUser.get();
+		System.out.println("User found: " + foundUser.getEmail());
+		System.out.println("Stored password hash: " + foundUser.getPassword());
+		System.out.println("Password matches: " + passwordEncoder.matches(password, foundUser.getPassword()));
+
+		// Compare the passwords using BCryptPasswordEncoder
+		if (passwordEncoder.matches(password, foundUser.getPassword())) {
+			System.out.println("Email and Password Matched.");
+			model.addAttribute("user", foundUser);
+			return "userDashBoard";
+		} else {
+			System.out.println("Email and Password Not Matched.");
+			model.addAttribute("user", new User());
+			model.addAttribute("error", "Password is incorrect");
+			return "userLoginPage";
+		}
 	}
 
 	// display list of user

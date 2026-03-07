@@ -330,16 +330,7 @@
 <body>
     <div class="result-container">
         <div class="result-card">
-            <!-- DEBUG INFO -->
-            <div style="background: yellow; padding: 20px; margin: 10px; border: 2px solid red;">
-                <h3>DEBUG INFO:</h3>
-                <p>Quiz ID: <span th:text="${quiz == null} ? 'QUIZ IS NULL' : ${quiz.id}"></span></p>
-                <p>Quiz Subject: <span th:text="${quiz == null} ? 'QUIZ IS NULL' : ${quiz.subject}"></span></p>
-                <p>Percentage: <span th:text="${percentage == null} ? 'NULL' : ${percentage}"></span></p>
-                <p>Correct Answers: <span th:text="${correctAnswers == null} ? 'NULL' : ${correctAnswers}"></span></p>
-                <p>Total Questions: <span th:text="${totalQuestions == null} ? 'NULL' : ${totalQuestions}"></span></p>
-                <p>Questions Count in List: <span th:text="${questions == null} ? 'NULL' : ${#lists.size(questions)}"></span></p>
-            </div>
+
 
             <!-- Header -->
             <div class="result-header">

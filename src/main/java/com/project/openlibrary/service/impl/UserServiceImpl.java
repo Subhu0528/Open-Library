@@ -15,19 +15,19 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Override
 	public void saveUser(User user) {
-		
+
 		this.userRepository.save(user);
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public Optional<User> findByEmail(String email) {
 
-//		User isPassMatched = userRepository.findByUsername(email);		
+		// User isPassMatched = userRepository.findByUsername(email);
 		return userRepository.findByEmail(email);
 	}
 
@@ -42,7 +42,5 @@ public class UserServiceImpl implements UserService {
 
 		this.userRepository.deleteById(id);
 	}
-
-	
 
 }
